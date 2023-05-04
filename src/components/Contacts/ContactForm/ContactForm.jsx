@@ -1,11 +1,13 @@
 import { Formik, Field, ErrorMessage } from 'formik';
 import { Form, Label, Button } from './ContactForm.styled';
 import { ContactSchema, phoneNumberMask } from 'components/Utils/Validate';
-import { useDispatch } from 'react-redux';
-import { addContact } from 'redux/contactsSlice';
+import { useDispatch, useSelector } from 'react-redux';
 import MaskedInput from 'react-text-mask';
+import { addContact } from 'redux/operations';
+import { getContacts } from 'redux/selector';
 
 export const ContactForm = () => {
+  const contact = useSelector(getContacts);
   const dispatch = useDispatch();
 
   return (
@@ -13,8 +15,15 @@ export const ContactForm = () => {
       initialValues={{ name: '', number: '' }}
       validationSchema={ContactSchema}
       onSubmit={(values, action) => {
-        dispatch(addContact(values));
-        action.resetForm();
+        const duplicateName = contact.find(
+          ({ name }) => name.toLowerCase() === values.name.toLowerCase()
+        );
+        return (
+          duplicateName
+            ? alert(`${values.name} is already in contacts.`)
+            : dispatch(addContact(values)),
+          action.resetForm()
+        );
       }}
     >
       <Form>
