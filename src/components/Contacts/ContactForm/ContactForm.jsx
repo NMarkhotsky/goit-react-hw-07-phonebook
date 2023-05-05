@@ -1,13 +1,14 @@
+import { useDispatch, useSelector } from 'react-redux';
+import { addContact } from 'redux/operations';
+import { selectContacts } from 'redux/selector';
 import { Formik, Field, ErrorMessage } from 'formik';
 import { Form, Label, Button } from './ContactForm.styled';
 import { ContactSchema, phoneNumberMask } from 'components/Utils/Validate';
-import { useDispatch, useSelector } from 'react-redux';
 import MaskedInput from 'react-text-mask';
-import { addContact } from 'redux/operations';
-import { getContacts } from 'redux/selector';
+import toast from 'react-hot-toast';
 
 export const ContactForm = () => {
-  const contact = useSelector(getContacts);
+  const contact = useSelector(selectContacts);
   const dispatch = useDispatch();
 
   return (
@@ -18,12 +19,9 @@ export const ContactForm = () => {
         const duplicateName = contact.find(
           ({ name }) => name.toLowerCase() === values.name.toLowerCase()
         );
-        return (
-          duplicateName
-            ? alert(`${values.name} is already in contacts.`)
-            : dispatch(addContact(values)),
-          action.resetForm()
-        );
+        return duplicateName
+          ? toast(`${values.name} is already in contacts.`, { icon: '⚠️' })
+          : (dispatch(addContact(values)), action.resetForm());
       }}
     >
       <Form>
